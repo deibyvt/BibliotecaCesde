@@ -810,14 +810,21 @@ public class Proyecto {
                                         for (int i = 0; i < totalReservas; i++) {
                                             if (cedulaReserva[i].equalsIgnoreCase(cedulaLogueado)) {
                                                 if (diasDevolucion[i] <= -1 && estadoReserva[i].equalsIgnoreCase("Entrega del Libro en Mora")) {
+                                                    String nomLibro = "";
+                                                    for (int j = 0; j < totalLibros; j++) {
+                                                        if (libroReserva[i].equalsIgnoreCase(codLibros[j])) {
+                                                            nomLibro = titulos[j];
+                                                        }
+                                                    }
                                                     System.out.printf("""
                                                             =====================================================
                                                                 URGENTE______________________________________
                                                                 ENTREGAR LIBRO...
-                                                                        CODIGO LIBRO: %S
+                                                                        CODIGO LIBRO: %s
+                                                                        TITULO: %s
                                                                         DIAS DE MORA: %d
                                                             =====================================================
-                                                            """, libroReserva[i], diasDevolucion[i]);
+                                                            """, libroReserva[i], nomLibro, diasDevolucion[i]);
                                                 }
                                             }
                                         }
