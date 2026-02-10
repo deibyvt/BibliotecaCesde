@@ -62,6 +62,7 @@ public class Proyecto {
         int totalReservas = 0;
         String eliminarCed;
         String buscarCedula;
+        String[] estadoReserva = new String[10];
 
         int opcionPrincipal;
 
@@ -561,6 +562,9 @@ public class Proyecto {
                                                         System.out.println("==========================================================================================================");
 
                                                         for (int i = 0; i < 10; i++) {
+                                                            if (codLibros[i] == null) {
+                                                                break;
+                                                            }
                                                             System.out.println("Codigo:  " +codLibros [i] + "   Titulo:  " + titulos [i] + "   Disponibles:  " + disponibles [i]);
                                                         }
                                                         System.out.println("\n");
@@ -582,7 +586,7 @@ public class Proyecto {
                                                 ===================================
                                                         1) crear reserva
                                                         2) actualizar reserva
-                                                        3) eliminar reserva
+                                                        3) Finalizar Reserva
                                                         4) ver reservas
                                                         5) atras
                                                 ===================================
@@ -600,15 +604,15 @@ public class Proyecto {
                                                             String ced = sc.nextLine();
 
                                                             // buscar si existe
-                                                            boolean existe = false;
+                                                            int existe = -1;
                                                             for (int i = 0; i < totalUsuarios; i++) {
                                                                 if (cedulas[i].equalsIgnoreCase(ced)) {
-                                                                    existe = true;
+                                                                    existe = i;
                                                                     break;
                                                                 }
                                                             }
 
-                                                            if (!existe) {
+                                                            if (existe == -1) {
                                                                 System.out.println("usuario no encontrado");
                                                                 break;
                                                             }
@@ -641,6 +645,7 @@ public class Proyecto {
                                                             cedulaReserva[totalReservas] = ced;
                                                             libroReserva[totalReservas] = cod;
                                                             diasDevolucion[totalReservas] = dias;
+                                                            estadoReserva[totalReservas] = "Prestamo Activo";
                                                             totalReservas++;
 
                                                             disponibles[posLibro] = false;
@@ -654,107 +659,110 @@ public class Proyecto {
                                                         break;
 
                                                     case 2: // actualizar reserva
-                                                        System.out.println("cedula de la reserva a actualizar:");
-                                                        String cedAct = sc.nextLine();
 
-                                                        int posRes = -1;
-                                                        for (int i = 0; i < totalReservas; i++) {
-                                                            if (cedulaReserva[i].equalsIgnoreCase(cedAct)) {
-                                                                posRes = i;
+                                                        String continuar = "si";
+                                                        do {
+                                                            System.out.println("cedula del usuario a actualizar:");
+                                                            String cedAct = sc.nextLine();
+
+                                                            int posRes = -1;
+                                                            for (int i = 0; i < totalReservas; i++) {
+                                                                if (cedulaReserva[i].equalsIgnoreCase(cedAct)) {
+                                                                    for (int j = 0; j < totalUsuarios; j++) {
+                                                                        if (cedulas[j].equalsIgnoreCase(cedAct)) {
+                                                                            System.out.println("Nombre de usuario: " + usuarios[j]);
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    posRes = i;
+                                                                    System.out.printf("""
+                                                                        Libro reservado: %s
+                                                                        Días devolución: %d
+                                                                        Estado reserva: %s
+                                                                        """,libroReserva[i],diasDevolucion[i],estadoReserva[i]);
+                                                                }
+                                                            }
+
+                                                            if (posRes == -1) {
+                                                                System.out.println("El usuario no tiene reservas");
                                                                 break;
                                                             }
-                                                        }
+                                                            System.out.println("Ingrese el codigo del libro que desea actualizar");
+                                                            String libroActualizar = sc.nextLine();
 
-                                                        if (posRes == -1) {
-                                                            System.out.println("reserva no encontrada");
-                                                            break;
-                                                        }
-
-                                                        System.out.println("nuevo codigo de libro:");
-                                                        String nuevoCod = sc.nextLine();
-
-                                                        int posLibroNuevo = -1;
-                                                        for (int i = 0; i < totalLibros; i++) {
-                                                            if (codLibros[i].equalsIgnoreCase(nuevoCod)) {
-                                                                posLibroNuevo = i;
-                                                                break;
+                                                            for (int i = 0; i < totalReservas; i++) {
+                                                                if (codLibros[i].equalsIgnoreCase(libroActualizar)) {
+                                                                    System.out.println("Actualización días de devolución de la reserva");
+                                                                    diasDevolucion[i] = sc.nextInt();
+                                                                    sc.nextLine();
+                                                                    estadoReserva[i] = "Prestamo Activo";
+                                                                    System.out.printf("""
+                                                                        ===== Datos actualizados =====
+                                                                        Cédula usuario: %s
+                                                                        Código libro reservado: %s
+                                                                        Días devolución: %d
+                                                                        Estado reserva: %s
+                                                                        """,cedulaReserva[i],libroReserva[i],diasDevolucion[i],estadoReserva[i]);
+                                                                }
                                                             }
-                                                        }
+                                                            System.out.println("Desea actualizar otra reserva 'si' o 'no'");
+                                                            continuar = sc.nextLine();
 
-                                                        if (posLibroNuevo == -1) {
-                                                            System.out.println("libro no encontrado");
-                                                            break;
-                                                        }
 
-                                                        if (!disponibles[posLibroNuevo]) {
-                                                            System.out.println("libro no disponible");
-                                                            break;
-                                                        }
-
-                                                        // liberar libro anterior
-                                                        for (int i = 0; i < totalLibros; i++) {
-                                                            if (codLibros[i].equalsIgnoreCase(libroReserva[posRes])) {
-                                                                disponibles[i] = true;
-                                                                break;
-                                                            }
-                                                        }
-
-                                                        libroReserva[posRes] = nuevoCod;
-
-                                                        System.out.println("nuevos dias:");
-                                                        diasDevolucion[posRes] = sc.nextInt();
-                                                        sc.nextLine();
-
-                                                        disponibles[posLibroNuevo] = false;
-
-                                                        System.out.println("reserva actualizada");
+                                                        }while (!continuar.equalsIgnoreCase("no"));
                                                         break;
 
                                                     case 3: // eliminar reserva
-                                                        System.out.println("cedula de la reserva a eliminar:");
-                                                        String cedElim = sc.nextLine();
+                                                        String resFin = "si";
+                                                        do {
+                                                            System.out.println("cedula del usuario a finalizar:");
+                                                            String cedAct = sc.nextLine();
+                                                            System.out.println("Código del libro a devolver");
+                                                            String codLib = sc.nextLine();
 
-                                                        int posElim = -1;
-                                                        for (int i = 0; i < totalReservas; i++) {
-                                                            if (cedulaReserva[i].equalsIgnoreCase(cedElim)) {
-                                                                posElim = i;
-                                                                break;
+
+                                                            int posRes = -1;
+                                                            for (int i = 0; i < totalReservas; i++) {
+                                                                if (cedulaReserva[i].equalsIgnoreCase(cedAct) && libroReserva[i].equalsIgnoreCase(codLib)) {
+                                                                    for (int j = 0; j < totalUsuarios; j++) {
+                                                                        if (cedulas[j].equalsIgnoreCase(cedAct)) {
+                                                                            System.out.println("Nombre de usuario: " + usuarios[j]);
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    for (int j = 0; j < totalLibros; j++) {
+                                                                        if (codLibros[j].equalsIgnoreCase(codLib)){
+                                                                            System.out.println("Nombre del libro: " + titulos[j]);
+                                                                            disponibles[i] = true;
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    posRes = i;
+                                                                }
                                                             }
-                                                        }
-
-                                                        if (posElim == -1) {
-                                                            System.out.println("reserva no encontrada");
-                                                            break;
-                                                        }
-
-                                                        // liberar libro
-                                                        for (int i = 0; i < totalLibros; i++) {
-                                                            if (codLibros[i].equalsIgnoreCase(libroReserva[posElim])) {
-                                                                disponibles[i] = true;
-                                                                break;
+                                                            if (posRes == -1){
+                                                                System.out.println("Reserva no encontrada");
+                                                            }else {
+                                                                estadoReserva[posRes] = "Reserva finalizada";
+                                                                System.out.println("Reserva finalizada con éxito");
                                                             }
-                                                        }
 
-                                                        for (int i = posElim; i < totalReservas - 1; i++) {
-                                                            cedulaReserva[i] = cedulaReserva[i + 1];
-                                                            libroReserva[i] = libroReserva[i + 1];
-                                                            diasDevolucion[i] = diasDevolucion[i + 1];
-                                                        }
+                                                            System.out.println("Desea finalizar otra reserva 'si' o 'no'");
+                                                            resFin = sc.nextLine();
 
-                                                        cedulaReserva[totalReservas - 1] = null;
-                                                        libroReserva[totalReservas - 1] = null;
-                                                        diasDevolucion[totalReservas - 1] = 0;
 
-                                                        totalReservas--;
-
-                                                        System.out.println("reserva eliminada");
+                                                        }while (!resFin.equalsIgnoreCase("no"));
                                                         break;
 
                                                     case 4: // ver reservas
                                                         for (int i = 0; i < totalReservas; i++) {
-                                                            System.out.println("cedula: " + cedulaReserva[i] +
-                                                                    " libro: " + libroReserva[i] +
-                                                                    " dias: " + diasDevolucion[i]);
+                                                            System.out.printf("""
+                                                                    Cédula usuario: %s
+                                                                    Libros reservados: %s
+                                                                    Días de devolución: %d
+                                                                    Estado reserva: %s
+                                                                    """,cedulaReserva[i],libroReserva[i],diasDevolucion[i],estadoReserva[i]);
+
                                                         }
                                                         break;
 
@@ -777,6 +785,20 @@ public class Proyecto {
                                             loginOk = false;
                                             break;
                                     }
+
+
+                                    for (int i = 0; i < totalReservas; i++) {
+                                        if(estadoReserva[i].equalsIgnoreCase("Entrega del Libro en Mora")){
+                                            diasDevolucion[i] --;
+                                        }
+                                        if (diasDevolucion[i] <= -1 && estadoReserva[i].equalsIgnoreCase("Prestamo Activo")) {
+                                            estadoReserva[i] = "Entrega del Libro en Mora";
+                                            diasDevolucion[i] --;
+                                        }
+                                        if (estadoReserva [i].equalsIgnoreCase("Prestamo Activo") && diasDevolucion[i] >=0 ){
+                                            diasDevolucion[i] --;
+                                        }
+                                    }
                                 } while (loginOk);
                                 break;
 
@@ -785,6 +807,20 @@ public class Proyecto {
                                 if (loginOk) {
                                     int menuUser;
                                     do {
+                                        for (int i = 0; i < totalReservas; i++) {
+                                            if (cedulaReserva[i].equalsIgnoreCase(cedulaLogueado)) {
+                                                if (diasDevolucion[i] <= -1 && estadoReserva[i].equalsIgnoreCase("Entrega del Libro en Mora")) {
+                                                    System.out.printf("""
+                                                            =====================================================
+                                                                URGENTE______________________________________
+                                                                ENTREGAR LIBRO...
+                                                                        CODIGO LIBRO: %S
+                                                                        DIAS DE MORA: %d
+                                                            =====================================================
+                                                            """, libroReserva[i], diasDevolucion[i]);
+                                                }
+                                            }
+                                        }
                                         System.out.println("""
                                                 ===============================
                                                 --------- MENÚ USUARIO --------
@@ -893,6 +929,7 @@ public class Proyecto {
                                                             libroReserva[totalReservas] = codLibros[i];
                                                             diasDevolucion[totalReservas] = 15;
                                                             disponibles[i] = false;
+                                                            estadoReserva[totalReservas] = "Prestamo Activo";
                                                             System.out.println("Reserva Exitosa...");
                                                             totalReservas ++;
                                                             break;
@@ -922,7 +959,6 @@ public class Proyecto {
                                                                         Titulo: %s
                                                                         Dias Restante: %d
                                                                 """,codLibros[j], titulos[j], diasDevolucion[i]);
-                                                                diasDevolucion[i] --;
                                                                 break;
                                                             }
                                                         }
@@ -931,7 +967,8 @@ public class Proyecto {
 
                                                 System.out.println("\n\n");
                                                 break;
-                                            default:
+
+                                            case 6:
                                                 usuarioLoguado = "";
                                                 cedulaLogueado = "";
                                                 nombresLogueado = "";
@@ -939,6 +976,20 @@ public class Proyecto {
                                                 rolLogueados = "";
                                                 loginOk = false;
                                                 break;
+                                            default:
+                                                break;
+                                        }
+                                        for (int i = 0; i < totalReservas; i++) {
+                                            if(estadoReserva[i].equalsIgnoreCase("Entrega del Libro en Mora")){
+                                                diasDevolucion[i] --;
+                                            }
+                                            if (diasDevolucion[i] <= -1 && estadoReserva[i].equalsIgnoreCase("Prestamo Activo")) {
+                                                estadoReserva[i] = "Entrega del Libro en Mora";
+                                                diasDevolucion[i] --;
+                                            }
+                                            if (estadoReserva [i].equalsIgnoreCase("Prestamo Activo") && diasDevolucion[i] >=0 ){
+                                                diasDevolucion[i] --;
+                                            }
                                         }
                                     } while (loginOk);
                                 }
